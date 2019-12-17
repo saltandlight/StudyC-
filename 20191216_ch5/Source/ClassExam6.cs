@@ -30,6 +30,10 @@ namespace Chapter4
         public int Length
         {
             get { return strArray.Length; }
+            private set
+            {
+
+            }
         }
         public Example(int strSize)
         {
@@ -37,6 +41,7 @@ namespace Chapter4
             strArray = new string[size];
         }
     }
+
     class ClassExam6
     {
         static void Main(string[] args)
