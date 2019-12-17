@@ -11,3 +11,4 @@
 -  Chapter03. 제어문과 배열
 -  Chapter04. 객체지향과 메서드
 -  Chapter05. 클래스
+-  Chapter06. 클래스 상속
