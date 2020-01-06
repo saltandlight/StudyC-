@@ -1,9 +1,6 @@
 # StudyC#
 
-- C# Programming Bible 책을 참고하고 있습니다.
-
-
-
+C# Programming Bible 책을 참고하고 있습니다.
 
 -  Chapter01. C# 소개
 -  Chapter02. 데이터와 식별자
