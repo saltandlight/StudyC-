@@ -1,4 +1,4 @@
-# Chapter01. CLR의 실행모델
+# Chapter01. CLR의 실행모델☘️
 - 이 장의 목표:
     - .NET Framework는 어떻게 설계되었는가
     - .NET Framework가 포함하는 기술들

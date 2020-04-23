@@ -1,6 +1,6 @@
-# StudyC#⛄️
+# StudyC#
 
-## C# Programming Bible
+## C# Programming Bible⛄️
 
 C# Programming Bible 책을 참고하고 있습니다.
 
@@ -25,8 +25,9 @@ C# Programming Bible 책을 참고하고 있습니다.
 CLR via C# 책을 참고하고 있습니다.
 
 - Part1. CLR의 기본
-
-- Part2. 빌드, 패키징, 배포, 응용프로그램과 타입의 관리
+	- 1. CLR의 기본 모델
+	- 2. 빌드, 패키징, 배포, 응용프로그램과 타입의 관리
+- Part2. 
 
 - Part3.
 
