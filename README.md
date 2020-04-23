@@ -20,7 +20,7 @@ C# Programming Bible 책을 참고하고 있습니다.
 
 -  Chapter08. 고급 프로그래밍 주제
 
-## CLR via C#
+## CLR via C#🌺
 
 CLR via C# 책을 참고하고 있습니다.
 
