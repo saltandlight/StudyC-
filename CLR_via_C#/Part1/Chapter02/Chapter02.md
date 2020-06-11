@@ -146,7 +146,18 @@ public sealed class Program{
 - 어떤 어셈블리의 AssemblyRef 항목들은 모두 언어 중립ㅇ로 만들어진 어셈블리들만을 다루어야 함
 - 만약 위성 어셈블리상에 내장된 타입이나 멤버를 접근해야 한다면 리플렉션을 이용해야 함
 
-## 단순 응용프로그램 배포
-
 ## 단순한 관리와 설정
+- 의도하는 디렉터리 구조
+```C#
+AppDir 디렉터리 (응용프로그램의 어셈블리가 들어있는 디렉터리)
+   Program.exe
+   Program.exe.config(자세히 살펴볼 설정파일)
 
+    AuxFiles 하위 디렉터리(MultiFileLibrary.DLL이 들어있는 디렉터리
+    )
+        MultiFileLibrary.dll
+        FUT.netmodule
+        FUT.netmodule
+```
+- .NET Framework 설치 시, MACHINE.CONFIG 라는 파일 만들게 됨
+- 컴퓨터에 설치된 CLR의 버전마다 하나씩 MACHINE.CONFIG 파일이 만들어짐
