@@ -44,6 +44,7 @@ class Employee : System.Object{
 
 - new 연산자에 의해 모든 작업이 실행되면 새로 만들어진 객체의 참조(포인터)를 반환.
 - 그런데...new 연산자에 대응되는 delete 연산자는 존재하지 않음, 명시적으로 객체의메모리를 할당 해제할 방법 없음
+    
     - 가비지 컬렉션 기반의 메모리 관리 사용함으로 사용되지 않는 객체를 자동 추적, 메모리 해지 -> 메모리 공간 회수하는 일 자동으로 처리함
 
 ## 타입 간 캐스팅하기
@@ -53,9 +54,155 @@ class Employee : System.Object{
 - 개발자들은 특정 객체를 다른 타입으로 캐스팅하는 코드를 자주 작성함
 - CLR은 객체의 현재 타입에 근접한 타입 or 기본 타입으로 캐스팅을 지원함
 
+- 기본 타입으로의 변환은 특별한 문법 불필요 <- 안전하게 처리할 수 있는 암묵적 변환이니까!
+- 파생 타입으로의 형 변환은 명시적인 문법을 사용하게 함 <- 실행 시에 코드가 실패할 수 있으니까!
+```C#
+//이 타입은 암묵적으로 System.Object 클래스 타입으로부터 파생됨
+internal class Employee{
+    //...
+}
+
+public sealed class Program{
+    public static void Main(){
+        //Employee 클래스 타입은 Object 클래스 타입이 기본 타입임
+        //new 연산자 호출 후에 별도로 형 변환 연산자 안 써도 됨
+        Object o = new Employee();
+
+        //Object 타입으로부터 Employee 클래스 타입이 파생되었으므로 형 변환 연산자가 필요함
+        //Visual Basic이나 일부 다른 언어들은 캐스팅 없이 컴파일이 가능
+        Employee e = (Employee) o;
+    }
+}
+```
+- 실행 시점에서 CLR은 캐스팅 연산자를 확인해서 캐스팅이 반드시 객체의 실제 타입 또는 기본 타입으로만 일어나는지 확인함
+- 다음의 코드는 컴파일에는 성공하지만 실행 시점에서는 InvalidCastException 예외가 발생
+
+```C#
+internal class Employee{
+    //...
+}
+
+internal class Manager : Emplyee{
+    //...
+}
+
+public seaeld class Program {
+    public static void Main() {
+        //Manager 객체를 만들고 PromoteEmployee 메서드를 호출할 때 인수로 전달함
+        //Manager is-a Object 관계 성립 -> PromoteEmployee 메서드가 정상적으로 실행됨
+        Manager m = new Manager();
+        PromoteEmployee(m);
+
+        //DateTime 객체를 만들고 PromoteEmployee 메서드 호출 시 인수로 전달
+        //DateTime 타입은 Employee 타입이 기본 타입이 아니므로 PromoteEmployee 메서드에서는 
+        //System.InvalidCastException 예외가 발생하게 됨
+        DateTime newYears = new DateTime(2013,1,1);
+        PromoteEmployee(newYears);
+    }
+
+    public static void PromoteEmployee(Object o){
+        // 이 시점에서, 컴파일러는 매개변수 o의 정확한 실제 타입이 뭔지 모름
+        // 컴파일러는 컴파일을 우선 허용하게 됨
+        // 그러나 실제 실행 시점에서 CLR은 object 타입으로 캐스팅이 되더라도 o객체가 어떤 타입인지 앍 ㅗ있고
+        // o 객체가 Employee 혹은 Employee 로부터 파생된 타입인지 검사하게 됨
+        Employee e = (Employee) o;
+    }
+}
+```
+- DateTime은 Object 타입으로 컴파일이나 실행 시점에서는 호출에 문제가 없다!
+- 그러나 PromoteEmployee 메서드 안에서 CLR은 매개변수 o의 타입이 DateTime 타입인 것을 알 수 있고, Employee 또는 Employee 타입으로부터 파생된 타입과는 관련 없음을 알게 됨
+- 이 시점에서 CLR은 캐스팅 허용 안 함, System.InvalidCastException 예외 발생시켜 실행 중단시킴
+
+- 만약에 CLR이 여기서 캐스팅 허용한다면, 타입 안정성은 지켜지지 않음 -> 결과가 매우 불규칙적이게 되어서 불안정성을 야기
+- -> 응용프로그램이 손상되거나 다른 타입으로 손쉽게 속일 수 있는 여지를 열어놓게 됨
+- 이로 인해 수많은 보안 취약점 양산, 응용프로그램의 안정성, 신뢰도가 떨어짐
+- 이런 까닭에 타입 안정성은 CLR에서 다른 어떤 부분보다 중요하고 철저하게 지켜짐
+
+- 여기서는 PromoteEmployee 메서드의 매개변수 선언을 Object에서 Employee 타입으로 바꾸는 것이 타당함
+- 그러나 그렇게 수정 시 앞의 코드에서 컴파일 오류가 발생...
+- 이 동작 덕분에 개발자가 실행 시점에 이 문제를 찾게 될 때까지 걸리는 시간을 줄여줌
 
 ### C#의 is와 as 연산자로 캐스팅하기
+- C# 언어에서 캐스팅 연산을 다루는 또 다른 방법: is 연산자를 사용하는 것
+- C#의 is 연산자는 어떤 객체가 주어진 타입과의 호환성이 있는지 여부 판정 -> 참 또는 거짓으로 결과를 반환하는 기능이 있음
+- 이 연산자는 절대! 예외를 발생시키지 않음
+```C#
+Object o = new Object();
+Boolean b1 = (o is Object); //참
+Boolean b2 = (o is Employee); //거짓
+```
+- 만약에 객체의 참조가 null이라면 is 연산자는 타입을 점검할 방법이 없으므로 항상 거짓을 결과로 내보냄
+- is 연산자를 보통 사용함
+```C#
+if(o is Employee)
+{
+    Employee e = (Employee) o;
+    //이 조건문 안에서 e 변수를 사용함
+}
+```
+- 이 코드에서 CLR은 객체의 타입을 두 번 점검함
+- is 연산자로 o 객체가 Employee 타입과의 호환성이 있는지 확인
+    - 호환성이 있다면 if 코드 블록 안의 내용이 실행되어 CLR이 o 객체가 Employee 타입으로 캐스팅하면서 검사를 수행함
+- CLR의 타입 검사는 보안을 강화하지만 성능에 관한 일정 비용이 발생
+    - 비용이 발생하는 원인: CLR이 변수 o 에 들어있는 객체의 실제 타입을 파악하기 위해 상속 관계 탐색하면서 각 기본 타입들을 조사해야 하기 때문임
+- 이런 프로그래밍 패러다임이 일반적이지만, C#은 이런 작업을 단순화하고 성능을 개선할 수 있도록 하기 위해 as 연산자를 제공함
+```C#
+Employee e = o as Employee;
+if(e != null)
+{
+    //이 조건문 아네서 e 변수 사용
+}
+```
+- 이 코드에서 CLR은 객체 o가 EMployee 타입과의 호환성이 있는지 점검
+    - 그렇다면 해당 객체에 대한 유효한 참조를 캐스팅하여 반환
+    - 아니라면 null 반환
+- as 연산자는 CLR이 객체의 타입을 조회하고 검사하는 작업을 단 한 번만 수행한다는 것임
+- 조건문 if에서는 단순히 이 연산의 결과로 나온 변수의 참조가 null인지 아닌지의 여부만 검사 -> 객체 타입을 좀 더 빠르게 검증할 수 있게 됨
 
+- as 연산자는 예외를 전혀 발생시키지 않으면서 캐스팅 수행, 객체 캐스팅 불가능한 경우 null을 반환하게 됨
+- 이를 이용해서 null인지 여부 판단하거나 이런 null을 담고 있는 객체의 인스턴스 메서드를 호출해서 의도적으로 System.NullReferenceException 예외를 발생시키도록 할 수 있음
+```C#
+Object o = new Object();        //새 Object 타입의 객체를 만듬
+Employee e = o as Employee;     //o 변수의 참조를 Employee 타입으로 캐스팅함
+//이 캐스팅은 실패하지만 예외 발생 안 하고 e가 null이 됨
+
+e.ToString();
+//변수 e에 대해 인스턴스 메서드 호출 시 NullReferenceException 예외 발생함
+```
+- [타입 안정성에 대한 퀴즈]
+
+- 다음 두 클래스의 정의가 있다고 하자
+
+- ```C#
+  internal class B{	//기본 클래스
+      
+  }
+  
+  internal class D : B {  //파생된 클래스
+      
+  }
+  ```
+
+- | 문장                      | 이상 없음 | 컴파일 오류 | 실행 중 오류 |
+  | ------------------------- | --------- | ----------- | ------------ |
+  | Object o1 = new Object(); | O         |             |              |
+  | Object o2 = new B();      | O         |             |              |
+  | Object o3 = new D();      | O         |             |              |
+  | Object o4 = o3;           | O         |             |              |
+  | B b1 = new B();           | O         |             |              |
+  | B b2 = new D();           | O         |             |              |
+  | D d1 = new D();           | O         |             |              |
+  | B b3 = new Object();      |           | O           |              |
+  | D d2 = new Object();      |           | O           |              |
+  | B b4 = d1;                | O         |             |              |
+  | D d3 = b2;                |           | O- 형 다름  |              |
+  | D d4 = (D) d1;            | O         |             |              |
+  | D d5 = (D) b2;            | O         |             |              |
+  | D d6 = (D) b1;            |           |             | O            |
+  | B b5 = (B) o1;            |           |             | O            |
+  | B b6 = (D) b2;            | O         |             |              |
+
+  
 ## 네임스페이스와 어셈블리
 
 ## 실행 시점과의 연관성
