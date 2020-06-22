@@ -128,7 +128,99 @@ public sealed class Program
 - 이것을 정의하는 어셈블리들을 로드하게 됨
 
 - 참조된 타입을 찾아낼 때, CLR은 다음 세 위치 중 한 곳에서 타입을 찾아냄
+    - **같은 파일**: 같은 파일 안에 들어있는 타입에 대한 액세스는 컴파일 시점에 파악 완료됨, "초기 바인딩"이라고 이야기하기도 함. 파일에서 직접 타이 로드, 실행 계속함
+    - **다른 파일, 같은 어셈블리**: 
+        - 실행 시점에서 차즌 타입이 어셈블리 대표 매니페스트 상의 ModuleRef 테이블에 서술된 파일 안에 찾는 내용이 들어있을 거라는 전제 아래서 출발
+        - CLR은 어셈블리의 매니페스트 파일이 로드된 디렉터리를 검색해서 파일 찾으면 파일이 무결성 검증 위해서 해시 값 확인, 타입 발견되면 해당 타입을 로드해서 실행 계속함
+    - **다른 파일, 다른 어셈블리**:
+        - 참조하는 타입이 다른 어셈블리의 파일에 있는 경우, 실행시점에 참조되는 어셈블리의 매니페스트를 로드하게 됨
+        - 매니페스트 안에서 해당 타입 못 찾으면, 매니페스트와 연결된 실제 파일 찾아서 다시 로드하게 됨
+        - 정확한 타입 찾으면 해당 타입을 로드해서 실행 계속함
+        - 만약 못 찾으면 상황에 맞게 대응되는 적절한 에외 발생 -> 문제점 알림
+
+    - CLR의 경우, 모든 어셈블리를 이름, 버전, 문화권, 공개 키로 식별
+    - 그러나 GAC의 경우, 어셈블리 식별을 위해 이름, 버전, 문화권, 공개 키 이외에 CPU 아키텍처 정보를 하나 더 필요로 함
+    - GAC 안에서 어셈블리 찾기 위해서라면 CLR은 어떤 프로세서 아키텍처 위에서 실행되는 응용프로그램을 구동 중인지 확인해야 함
 
 ## 고급 관리 기능 제어와 설정
+- 어떻게 하면 참조된 어셈블리의 파일들을 응용프로그램의 기본 디렉터리 아래의 서브 디렉터리로 이동시킬 수 있는가?
+- 응용프로그램의 XML 설정 파일을 어떻게 변경해야 CLR이 옮긴 파일의 위치를 찾을 수 있는가?
+- 이 두 가지에 대해 살펴볼 것
 
+```xml
+<?xml version="1.0"?>
+<configuration>
+    <runtime>
+        <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.vl">
+            <probing privatePath="AuxFiles;bin\subdir" />
+            <dependentAssembly>
+
+                <assemblyIdentity name="SomeClassLibrary"
+                    publicKeyToken="32ab3ba4e0a" culture="neutral"/>
+
+                <bindingRedirect
+                    oldVersion="1.0.0.0" newVersion="2.0.0.0"/>
+
+                <codeBase version="2.0.0.0"
+                    href="http://www.Wintellect.com/SomeClassLibrary.dll" />
+
+            </dependentAssembly>
+
+            <dependentAssembly>
+
+                <assemblyIdentity name="TypeLib"
+                    publicKeyToken="lf2e74e897abbcfe" cultre=neutral/>
+                <bindingRedirect 
+                    oldVersion="3.0.0.0-3.5.0.0" newVersion="4.0.0.0"/>
+
+                <publisherPolicy apply="no"/>
+            </dependentAssembly>
+    </runtime>
+</configuration>
+```
+- **Probing 요소**:
+    - 약한 이름의 어셈블리 로드 시 응용 프로그램의 기본 디렉터리 아래에 있는 AuxFile 디렉터리와 bin\subdir 디렉터리를 찾도록 지시하는 역할을 함
+    - 강력한 이름의 어셈블리를 찾을 때는 GAC 또는 codeBase 요소에 지정된 URL을 기준으로 검색하게 됨
+        - 여기서 못 찾으면 응용프로그램의 개별 디렉터리에서 추가로 검색 수행
+- **첫번째 dependentAssembly, assemblyIdentity, bindingRedirect 요소**:
+    - 공개 키 토큰 32ab3ba4e0a를 관리하는 조직에서 게시한 SomeClassLibrary 어셈블리의 버전 1.0.0.0을 버전 2.0.0.0으로 찾도록 지시함
+- **codeBase 요소**:
+    - SomeClassLibrary라는 어셈블리의 버전 2.0.0.0을 찾으려고 할 떄 `http://www.Wintellect.com/SomeClassLibrary.dll`에서 어셈블리 찾도록 지시하게 됨
+    - 약한 이름의 어셈블리에서도 동작
+        - 어셈블리의 버전 번호가 무시됨, XML의 codeBase 요소에서도 버전 번호가 생략되어야 함
+        - codeBase에 기재되는 로컬 디렉터리의 URL은 반드시 응요프로그램의 기본 디렉터리 아래에 있는 상대경로여야 함
+- **두 번쨰 반복되는 dependentAssembly, assemblyIdentity, bindingRedirect 요소**:
+    - 공개키 토큰 lf2e74e897abbcfe를 관리하는 게시자에서 게시한 문화권 중립의 TypeLib 어셈블리 버전 대역 3.0.0.0-3.5.0.0 중 일치하는 어셈블리 대신 4.0.0.0 버전의 어셈블리 찾도록 지시함
+- **publisherPolicy 요소**:
+    - TypeLib 어셈블리 배포 시 해당 어셈블리와 연결된 게시자 정책 파일을 같이 배포한 경우, CLR은 현재 파일의 설정을 무시하게 됨
 ### 게시자 정책 제어
+- 어떻게 하면 어셈블리의 게시자가 직접 이런 정책을 만들 수 있는지 살펴볼 것
+- 어셈블리를 방금 만들어서 사용자들에게 배포하기 위해 패키지로 만들어야 한다고 생각하자
+```xml
+<configuration>
+    <runtime>
+        <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.vl">
+            <dependentAssembly>
+
+                <assemblyIdentity name="SomeClassLibrary"
+                    publicKeyToken="32ab4ba5e0a69a1" culture="neutral"/>
+
+                <bindingRedirect 
+                    oldVersion="1.0.0.0" newVersion="2.0.0.0"/>
+
+                <codeBase version="2.0.0.0"
+                    href="http://www.Wintellect.com/SomeClassLibrary./dll"/>
+            </dependentAssembly>
+        </assemblyBinding>
+    </runtime>
+</configuration>
+```
+- 게사자가 게시자 정책 어셈블리를 배포하려고 할 때, 새 어셈블리는 고친 것보다 더 많은 문제를 야기할 가능성 있음
+- 이런 일이 있을 때, 관리자는 CLR이 게시자 젗액 어셈블리를 무시하도록 구성하기를 원할 수 있음
+- 실행 시점에 이를 결정하도록 하기 위해 관리자는 응용프로그램의 설정 파일 편집해서 다음의 요소 추가하도록 할 수 있음
+`<publisherPolicy apply="no"/>`
+- 이 요소는 응용 프로그램의 설정 파일 내의 assemblyBinding 요소 아래에 들어갈 수 있고 이를 통해 모든 어셈블리에 적용 가능함
+- 특정 어셈블리에 대해서만 적용하는 것도 가능
+- CLR이 응용프로그램의 파일을 로드해서 치리 시, GAC에 설치된 게시자 정책 어셈블리를 사용하지 않도록 동작 바뀜
+- 대신에 이전 버전의 어셈블리를 계속 사용하게 될 것임
+- 이런 설정이 Machine.config 파일에 지정되어있지 않는 한 Machine.config 파일의 설정은 계속 사용하게 됨
