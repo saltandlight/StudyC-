@@ -232,4 +232,36 @@ D d3 = b2;
 - 예)
     - System.Text 네임스페이스에는 문자열 조작에 관련된 타입들
     - System.IO 네임스페이스에는 입출력 연산에 관련된 타입들을 모아놓음
+    - ```C#
+        public sealed class Program
+        {
+            public static void Main()
+            {
+                System.IO.FileStream fs = new System.IO.FileSteram(...);
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            }
+        }
+    ```
+- 이어지는 예시)
+    - 근데 FileStream과 StringBuilder 타입을 좀 더 적게 타이핑하고 정확하게 가리키고 싶음
+    - 다행히! 컴파일러가 이런 것들을 지원해줌! -> `using` 지시자를 이용하여 이것을 가능하게 함
+    - 아래의 코드는 위의 코드와 같은 코드!
+    - ```C#
+        using System.IO;   //접두사를 미리 붙임
+        using System.Text;
+        public sealed class Program
+        {
+            public static void Main()
+            {
+                FileStream fs = new FileSteram(...);
+                StringBuilder sb = new StringBuilder();
+            }
+        }
+    ```
+- 컴파일러 입장에서 네임스페이스는 타입의 이름을 길게 확장하면서 더 고유한 이름을 가질 수 있도록 만들어주는 쉬운 방법!
+- 이런 이름을 컴파일러가 해석하게 되면 FileStream 클래스 타입의 경우 Systme.IO.FileStream 클래스 타입을 가리키는 것으로 이해함
+- **CLR은 네임스페이스에 대해 아무것도 모른다.**
+    - 어떤 타입 사용하려고 할 떄, CLR은 구분자 기호가 들어갈 수 있는 타입의 전체 이름만 필요
+    - 해당 타입을 어떤 어셈블리에서 가지고 있는지 알 수 있어야 함
+    - 이 조건들을 만족해야 실행 시에 올바른 어셈블리를 로드하고 타입 찾아서 코드 처리가 가능함!
 ## 실행 시점과의 연관성
