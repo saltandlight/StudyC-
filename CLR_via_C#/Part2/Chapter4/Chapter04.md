@@ -335,3 +335,34 @@ namespace CompanyName {
 - M2 메서드 내부에서는 스택의 주소가 매개변수 s에 의해 식별됨
 - 메서드가 호출될 때 피호출자 메서드의 실행이 끝난 후 돌아갈 호출자 메서드의 주소도 스택상에 저장됨
 
+
+![](pic4.PNG)
+- M2가 실행되면, M2 메서드의 프롤로그 코드에서는 지역변수 length와 tally를 스레드 스택상에 할당하게 됨
+- M2 메서드의 코드가 실행됨
+- M2는 Return Statement를 만나서, CPU의 명령 포인터의 주소를 스택에 저장된 호출자 메서드의 주소로 설정
+- 그 후, M2의 스택 프레임은 두 번째 그림처럼 됨
+- 이 시점에서, M1은 M2 메서드를 호출한 직후의 코드에서부터 실행 재개, 스택 프레임은 호출 당시의 상태로 재구성됨
+- 또 다시 M1 메서드는 M1 메서드의 호출자로 돌아가기 위해 CPU의 명령 포인터를 스택상에 저장된 호출자의 주소로 설정, M1의 스택 프레임을 첫 번째 그림처럼 해제하게 됨
+
+- 이제 CLR을 살펴볼 것
+- 다음의 두 개의 클래스 정의가 있다고 가정하자
+
+```C#
+internal class Employee{
+    public         Int32    GetYearsEmployed() { ... }
+    public virtual String   GetProgressReport() { ... }
+    public static  Employee Lookup(String name) { ... }
+}
+
+internal sealed class Manager : Employee {
+    public override String  GetProgressReport() { ... }
+}
+```
+- Windows 프로세스 실행, CLR이 그 안에 로드됨, 관리되는 힙이 초기화, 1MB 크기의 스택공간과 함께 스레드가 할당될 것
+- 이 스레드는 이미 코드를 모두 실행한 상태
+- M3라는 메서드상의 코드를 실행하려고 함
+
+![](pic4.PNG)
+- JIT 컴파일러가 M3 메서드의 IL 코드를 네거티브 CPU 명령어로 변환하면서 M3 메서드 안에서 참조하는 Employee, Int32, Manager, 그리고 "Joe"라는 상수 문자열에 관해 사용되는 String 타입까지 모든 타입들을 파악하게 됨
+- 이 시점에서 CLR은 이런 타입들을 포함하는 어셈블리들을 모두 로드하게 될 것
+- CLR은 어셈블리의 메타데이터 사용 -> 이 타이븓ㄹ에 대한 정보 추출 -> 타이벵 대한 정보를 서술하는 자료구조를 생성하게 될 것
