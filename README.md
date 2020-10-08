@@ -35,7 +35,10 @@ CLR via C# 책을 참고하고 있습니다.
 - Part5.
 
 ## 추가 내용🤗
-- 새롭게 알게 된 내용들을 정리한 폴더입니다.
+- 프로그램 방법론
+- Call By Value & Call By Reference
+- Converting & Casting
+- DateTime & String
 
 ## 코딩 시 유의사항
 - **봐야 하는 프로그램 동작을 먼저 살피기**
