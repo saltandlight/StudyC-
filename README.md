@@ -57,3 +57,5 @@ CLR via C# 책을 참고하고 있습니다.
 - 변수 범위를 명확하게 생각하기
 - 역할과 목적을 생각하고 네이밍을 분명하고 명확하게 하기
 - Visual Studio에서 자동이나 출력을 보는 것 = 한 번 더 call하는 것임(동작이 있을 수 있음, 순수한 값이 아님)
+- Visual Studio를 설치할 때, 가끔 html 파일이 섞여서 들어올 떄가 있음. 내가 수정한 코드가 아니면 삭제해줘야 함
+  - https://docs.microsoft.com/ko-kr/cpp/porting/upgrading-projects-from-earlier-versions-of-visual-cpp?view=vs-2019 <- 이 
