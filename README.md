@@ -35,8 +35,9 @@ CLR via C# 책을 참고하고 있습니다.
 - Part5.
 
 ## 추가 내용🤗
-- 프로그램 방법론
-- Call By Value & Call By Reference
-- Converting & Casting
+- Call by Value  & Call by Reference
+- Converting Casting
 - DateTime & String
-
+- 정규식
+- 코딩 시 유의할 사항들
+- 프로그램 방법론
