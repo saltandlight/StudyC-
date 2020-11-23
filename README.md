@@ -36,7 +36,7 @@ CLR via C# 책을 참고하고 있습니다.
 
 ## 추가 내용🤗
 - Call by Value  & Call by Reference
-- Converting Casting
+- Converting & Casting
 - DateTime & String
 - 정규식
 - 코딩 시 유의할 사항들
