@@ -38,6 +38,7 @@ CLR via C# 책을 참고하고 있습니다.
 - Call by Value  & Call by Reference
 - Converting & Casting
 - DateTime & String
+- 윈도우 프로세스 간 통신
 - 정규식
 - 코딩 시 유의할 사항들
 - 프로그램 방법론
