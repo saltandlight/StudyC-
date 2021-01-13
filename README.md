@@ -1,6 +1,6 @@
 # StudyC#
 
-## C# Programming Bible⛄️
+## C# Programming Bible🌺
 
 C# Programming Bible 책을 참고하고 있습니다.
 
@@ -34,7 +34,7 @@ CLR via C# 책을 참고하고 있습니다.
 
 - Part5.
 
-## WindowsProgramming
+## WindowsProgramming🌺
 - 윈도우 프로그래밍 기초 개념 정리
 
 ## 추가 내용🌺
