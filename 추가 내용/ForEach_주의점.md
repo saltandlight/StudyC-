@@ -8,6 +8,6 @@
    위치: System.Collections.Generic.List`1.Enumerator.MoveNext()
   ```
 - 해결방법
-- 1. foreach에서 대상이 되는 컬렉션에서 ToList를 사용하여 변경(변경할 대상은 원본, foreach 위에서만 대상을 ToList로)
-- 2. foreach를 for loop로 변경
-- 3. while loop로 바꿔준다.
+   - 1. foreach에서 대상이 되는 컬렉션에서 ToList를 사용하여 변경(변경할 대상은 원본, foreach 위에서만 대상을 ToList로)
+   - 2. foreach를 for loop로 변경
+   - 3. while loop로 바꿔준다.
